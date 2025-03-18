@@ -14,7 +14,7 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// 设置键值
-    Set { key: String, value: String},
+    Set { key: String, value: String },
 
     /// 获取键值
     Get { key: String },
@@ -30,11 +30,11 @@ fn main() {
         Commands::Set { key, value } => {
             eprintln!("unimplemented");
             process::exit(1);
-        },
+        }
         Commands::Get { key } => {
             eprintln!("unimplemented");
             process::exit(1);
-        },
+        }
         Commands::Rm { key } => {
             eprintln!("unimplemented");
             process::exit(1);

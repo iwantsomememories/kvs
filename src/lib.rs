@@ -10,7 +10,6 @@ pub struct KvStore {
 
 #[allow(unused_variables)]
 impl KvStore {
-
     /// 生成一个KvStore
     pub fn new() -> Self {
         Self { db: HashMap::new() }
@@ -23,7 +22,7 @@ impl KvStore {
 
     /// 根据键返回对应值，若不包含该键值对，则返回None
     /// # Example
-    /// 
+    ///
     /// ```
     /// let mut kvs = KvStore::new();
     /// kvs.set("key1".to_owned(), "value1".to_owned());
