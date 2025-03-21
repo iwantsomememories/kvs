@@ -1,67 +1,10 @@
-// #![deny(missing_docs)]
+#![deny(missing_docs)]
 //! 一个简单的用于存储键值对的库。
 
-use std::collections::HashMap;
-use std::path::PathBuf;
-use failure::{Fail, Error};
+pub use error::{KvsError, Result};
+pub use kv::KvStore;
+pub use persist::Operation;
 
-pub type Result<T> = std::result::Result<T, Error>;
-
-#[derive(Debug, Fail)]
-pub enum KvsError {
-    #[fail(display = "Failed to read the value corresponding to the {}.", _0)]
-    ReadError(String),
-    #[fail(display = "Failed to write the key-value pair ({}, {}).", _0, _1)]
-    WriteError(String, String),
-    #[fail(display = "Failed to remove the {}.", _0)]
-    RemoveError(String),
-    #[fail(display = "Unable to find the {}.", _0)]
-    NotFoundError(String),
-    #[fail(display = "Failed to open the key-value store according to the given path.")]
-    OpenError,
-}
-
-/// 在内存中存储键值对的数据结构，包含一个HashMap。
-pub struct KvStore {
-    db: HashMap<String, String>,
-}
-
-#[allow(unused_variables)]
-impl KvStore {
-    /// 生成一个KvStore
-    pub fn new() -> Self {
-        Self { db: HashMap::new() }
-    }
-
-    /// 增加或修改键值对
-    pub fn set(&mut self, key: String, value: String) -> Result<()> {
-        self.db.insert(key, value);
-        Ok(())
-    }
-
-    /// 根据键返回对应值，若不包含该键值对，则返回None
-    /// # Example
-    ///
-    /// ```
-    /// let mut kvs = KvStore::new();
-    /// kvs.set("key1".to_owned(), "value1".to_owned());
-    /// println!("{:?}", kvs.get("key1".to_owned()));
-    /// println!("{:?}", kvs.get("key2".to_owned()));
-    /// ```
-    pub fn get(&self, key: String) -> Result<Option<String>> {
-        // self.db.get(&key).cloned()
-        panic!("unimplemented!")
-    }
-
-    /// 移除键值对
-    pub fn remove(&mut self, key: String) -> Result<()> {
-        self.db.remove(&key);
-        panic!("unimplemented!")
-    }
-
-
-    /// 根据给定路径返回一个KvStore
-    pub fn open(path: impl Into<PathBuf>) -> Result<KvStore> {
-        panic!("unimplemented!")
-    }
-}
+mod error;
+mod kv;
+mod persist;

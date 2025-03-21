@@ -28,8 +28,7 @@ fn main() {
     let cli = Cli::parse();
     match cli.command {
         Commands::Set { key, value } => {
-            eprintln!("unimplemented");
-            process::exit(1);
+            
         }
         Commands::Get { key } => {
             eprintln!("unimplemented");
