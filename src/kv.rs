@@ -56,7 +56,7 @@ impl KvStore {
 
     /// 增加或修改键值对
     pub fn set(&mut self, key: String, value: String) -> Result<()> {
-        let op = Operation::Set { key: key, value: value };
+        let op = Operation::Set { key, value };
         let pos = self.writer.pos;
         serde_json::to_writer(&mut self.writer, &op)?;
         self.writer.flush()?;

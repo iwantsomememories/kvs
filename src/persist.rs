@@ -38,13 +38,13 @@ pub struct OperationPos {
 
 impl From<(u64, Range<u64>)> for OperationPos {
     fn from((gen, range): (u64, Range<u64>)) -> Self {
-        OperationPos { gen: gen, pos: range.start, len: range.end - range.start }
+        OperationPos { gen, pos: range.start, len: range.end - range.start }
     }
 }
 
 /// 根据给定编号生成日志文件，并将读取器加入映射，返回该日志的写入器
 pub fn new_log_file(path: &Path, gen: u64, readers: &mut HashMap<u64, BufReaderWithPos<File>>) -> Result<BufWriterWithPos<File>> {
-    let path = log_path(&path, gen);
+    let path = log_path(path, gen);
     let writer = BufWriterWithPos::new(
         OpenOptions::new()
         .create(true)
@@ -58,7 +58,7 @@ pub fn new_log_file(path: &Path, gen: u64, readers: &mut HashMap<u64, BufReaderW
 
 /// 返回给定目录中log文件的有序编号数组
 pub fn sorted_gen_list(path: &Path) -> Result<Vec<u64>> {
-    let mut gen_list: Vec<u64> = fs::read_dir(&path)?
+    let mut gen_list: Vec<u64> = fs::read_dir(path)?
         .flat_map(|res| -> Result<_> { Ok(res?.path()) })
         .filter(|path| path.is_file() && path.extension() == Some("log".as_ref()))
         .flat_map(|path| {
@@ -113,8 +113,8 @@ pub struct BufReaderWithPos<R: Read + Seek> {
 impl<R: Read + Seek> BufReaderWithPos<R> {
     /// BufReaderWithPos的构造器
     pub fn new(mut inner: R) -> Result<Self> {
-        let pos = inner.seek(SeekFrom::Current(0))?;
-        Ok(BufReaderWithPos { reader: BufReader::new(inner), pos: pos })
+        let pos = inner.stream_position()?;
+        Ok(BufReaderWithPos { reader: BufReader::new(inner), pos })
     }
 }
 
@@ -143,8 +143,8 @@ pub struct BufWriterWithPos<W: Write + Seek> {
 impl<W: Write + Seek> BufWriterWithPos<W> {
     /// BufWriterWithPos的构造器
     pub fn new(mut inner: W) -> Result<Self> {
-        let pos = inner.seek(SeekFrom::Current(0))?;
-        Ok(BufWriterWithPos { writer: BufWriter::new(inner), pos: pos })
+        let pos = inner.stream_position()?;
+        Ok(BufWriterWithPos { writer: BufWriter::new(inner), pos })
     }
 }
 
