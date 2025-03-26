@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use kvs::{KvStore, KvsError, Result};
-use std::process::exit;
 use std::env::current_dir;
+use std::process::exit;
 
 #[derive(Debug, Parser)]
 #[command(name = env!("CARGO_PKG_NAME"), 

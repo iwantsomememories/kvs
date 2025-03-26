@@ -1,7 +1,10 @@
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 
-use crate::{load, log_path, new_log_file, sorted_gen_list, BufReaderWithPos, BufWriterWithPos, KvsError, Operation, OperationPos, Result};
+use crate::{
+    load, log_path, new_log_file, sorted_gen_list, BufReaderWithPos, BufWriterWithPos, KvsError,
+    Operation, OperationPos, Result,
+};
 use std::fs::{self, File};
 use std::io::{self, Read, Seek, SeekFrom, Write};
 
@@ -19,9 +22,8 @@ pub struct KvStore {
     current_gen: u64,
     index: BTreeMap<String, OperationPos>,
     // 经过压缩可以节约的空间，大小以字节为单位
-    uncompacted: u64
+    uncompacted: u64,
 }
-
 
 impl KvStore {
     /// 根据给定路径返回一个KvStore
@@ -40,17 +42,17 @@ impl KvStore {
             uncompacted += load(gen, &mut reader, &mut index)?;
             readers.insert(gen, reader);
         }
-        
+
         let current_gen = gen_list.last().unwrap_or(&0) + 1;
         let writer = new_log_file(&path, current_gen, &mut readers)?;
 
-        Ok(KvStore { 
-            path, 
-            readers, 
-            writer, 
-            current_gen, 
-            index, 
-            uncompacted
+        Ok(KvStore {
+            path,
+            readers,
+            writer,
+            current_gen,
+            index,
+            uncompacted,
         })
     }
 
@@ -85,7 +87,7 @@ impl KvStore {
                 .expect("Cannot find log reader");
             reader.seek(SeekFrom::Start(op_pos.pos))?;
             let op_reader = reader.take(op_pos.len);
-            if let Operation::Set { key:_, value } = serde_json::from_reader(op_reader)? {
+            if let Operation::Set { key: _, value } = serde_json::from_reader(op_reader)? {
                 Ok(Some(value))
             } else {
                 Err(KvsError::UnexpectedCommandType)
