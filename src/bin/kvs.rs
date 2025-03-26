@@ -34,7 +34,7 @@ fn main() -> Result<()> {
             kvs.set(key, value)?;
         }
         Commands::Get { key } => {
-            let kvs = KvStore::open(current_dir()?)?;
+            let mut kvs = KvStore::open(current_dir()?)?;
             if let Some(value) = kvs.get(key)? {
                 println!("{}", value);
             } else {

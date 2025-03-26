@@ -3,7 +3,7 @@
 
 pub use error::{KvsError, Result};
 pub use kv::KvStore;
-pub use persist::Operation;
+pub use persist::*;
 
 mod error;
 mod kv;
