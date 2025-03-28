@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
-use kvs::{KvStore, KvsError, Result};
+use kvs::{KvStore, KvsEngine, KvsError, KvsServer, Result};
 use std::env::current_dir;
 use std::process::exit;
 use std::fs::{File, OpenOptions};
@@ -13,7 +13,7 @@ extern crate slog;
 extern crate slog_async;
 extern crate slog_term;
 
-use slog::Drain;
+use slog::{Drain, Logger};
 
 const DEFAULT_LISTENING_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 4000);
 const DEFAULT_STORAGE_ENGINE: Engine = Engine::Kvs;
@@ -25,10 +25,10 @@ const ENGINE_FILE_SUFFIX: &str = ".engine";
         author = env!("CARGO_PKG_AUTHORS"), 
         about = env!("CARGO_PKG_DESCRIPTION"))]
 struct Cli {
-    #[arg(long, default_value_t = DEFAULT_LISTENING_ADDRESS, value_parser = addr_parser)]
+    #[arg(short, long, default_value_t = DEFAULT_LISTENING_ADDRESS, value_parser = addr_parser)]
     addr: SocketAddr,
 
-    #[arg(long, value_enum)]
+    #[arg(short, long, value_enum)]
     engine: Option<Engine>,
 }
 
@@ -83,7 +83,7 @@ fn main() {
     let engine = cli.engine.unwrap_or(DEFAULT_STORAGE_ENGINE);
     info!(server, "Storage Engine: {}", engine; "storage engine" => format!("{}", engine));
 
-    let res = run(engine);
+    let res = run(engine, cli.addr, &server);
     if let Err(e) = res {
         error!(server, "{}", e);
         drop(server);
@@ -91,18 +91,24 @@ fn main() {
     }
 }
 
-fn run(eng: Engine) -> Result<()> {
+fn run(engine: Engine, addr: SocketAddr, logger: &Logger) -> Result<()> {
     let engine_file = OpenOptions::new()
         .create(true)
         .write(true)
         .open(current_dir()?.join(ENGINE_FILE_SUFFIX))?;
 
-    serde_json::to_writer(engine_file, &eng)?;
+    serde_json::to_writer(engine_file, &engine)?;
 
-    // todo!();
-    Ok(())
+    match engine {
+        Engine::Kvs => run_with_engine(KvStore::open(current_dir()?)?, addr, logger),
+        Engine::Sled => todo!(),
+    }
 }
 
+fn run_with_engine<E: KvsEngine>(engine: E, addr: SocketAddr, logger: &Logger) -> Result<()> {
+    let server = KvsServer::new(engine);
+    server.run(addr, logger)
+}
 
 fn current_engine() -> Result<Option<Engine>>{
     let engine_path = current_dir()?.join(ENGINE_FILE_SUFFIX);

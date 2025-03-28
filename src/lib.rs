@@ -3,6 +3,15 @@
 
 pub use error::{KvsError, Result};
 pub use engines::{KvStore, KvsEngine};
+pub use client::KvsClient;
+pub use server::KvsServer;
+
+#[macro_use]
+extern crate slog;
+extern crate slog_async;
+extern crate slog_term;
 
 mod error;
 mod engines;
+mod server;
+mod client;
