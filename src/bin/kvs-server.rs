@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
-use kvs::{KvStore, KvsEngine, KvsError, KvsServer, Result};
+use kvs::{KvStore, KvsEngine, KvsServer, Result};
 use std::env::current_dir;
 use std::process::exit;
 use std::fs::{File, OpenOptions};

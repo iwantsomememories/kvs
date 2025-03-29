@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
-use kvs::{KvStore, KvsClient, KvsError, Result};
-use std::env::current_dir;
+use kvs::{KvsClient, Result};
 use std::process::exit;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
@@ -52,15 +51,19 @@ fn run(cli: Cli) -> Result<()> {
     match cli.command {
         Commands::Set { key, value } => {
             let mut client = KvsClient::connect(cli.addr)?;
-            // todo!()
+            client.set(key, value)?;
         }
         Commands::Get { key } => {
             let mut client = KvsClient::connect(cli.addr)?;
-            // todo!()
+            if let Some(value) = client.get(key)? {
+                println!("{}", value);
+            } else {
+                println!("Key not found");
+            }
         }
         Commands::Rm { key } => {
             let mut client = KvsClient::connect(cli.addr)?;
-            // todo!()
+            client.remove(key)?;
         }
     }
     Ok(())

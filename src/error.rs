@@ -16,6 +16,9 @@ pub enum KvsError {
     /// 无效命令.
     #[fail(display = "Unexpected command type")]
     UnexpectedCommandType,
+    /// 附带string信息的错误.
+    #[fail(display = "{}", _0)]
+    StringError(String),
 }
 
 impl From<io::Error> for KvsError {
