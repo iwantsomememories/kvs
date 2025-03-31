@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
-use kvs::{KvStore, KvsEngine, KvsServer, Result};
 use std::env::current_dir;
 use std::process::exit;
 use std::fs::{File, OpenOptions};
@@ -14,6 +13,8 @@ extern crate slog_async;
 extern crate slog_term;
 
 use slog::{Drain, Logger};
+
+use kvs::{KvStore, KvsEngine, SledEngine, KvsServer, Result};
 
 const DEFAULT_LISTENING_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 4000);
 const DEFAULT_STORAGE_ENGINE: Engine = Engine::Kvs;
@@ -101,7 +102,7 @@ fn run(engine: Engine, addr: SocketAddr, logger: &Logger) -> Result<()> {
 
     match engine {
         Engine::Kvs => run_with_engine(KvStore::open(current_dir()?)?, addr, logger),
-        Engine::Sled => todo!(),
+        Engine::Sled => run_with_engine(SledEngine::new(sled::open(current_dir()?)?), addr, logger),
     }
 }
 

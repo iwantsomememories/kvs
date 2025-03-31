@@ -15,7 +15,7 @@ struct Cli {
     #[command(subcommand)]
     command: Commands,
 
-    #[arg(short, long, default_value_t = DEFAULT_CONNECT_ADDRESS, value_parser = addr_parser)]
+    #[arg(short, long, global = true, default_value_t = DEFAULT_CONNECT_ADDRESS, value_parser = addr_parser)]
     addr: SocketAddr,
 }
 

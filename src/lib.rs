@@ -2,7 +2,7 @@
 //! 一个简单的用于存储键值对的库。
 
 pub use error::{KvsError, Result};
-pub use engines::{KvStore, KvsEngine};
+pub use engines::{KvStore, KvsEngine, SledEngine};
 pub use client::KvsClient;
 pub use server::KvsServer;
 
