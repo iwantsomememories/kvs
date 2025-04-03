@@ -1,6 +1,7 @@
 use failure::Fail;
 use std::io;
 use std::string::FromUtf8Error;
+use std::sync::PoisonError;
 
 /// kvs 错误类型.
 #[derive(Debug, Fail)]
@@ -49,6 +50,12 @@ impl From<sled::Error> for KvsError {
 impl From<FromUtf8Error> for KvsError {
     fn from(err: FromUtf8Error) -> Self {
         KvsError::Utf8(err)
+    }
+}
+
+impl<T> From<PoisonError<T>> for KvsError  {
+    fn from(value: PoisonError<T>) -> Self {
+        KvsError::StringError("Lock poisoned.".to_string())
     }
 }
 

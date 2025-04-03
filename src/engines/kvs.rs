@@ -7,13 +7,56 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, BufReader, BufWriter, Read, Seek, SeekFrom, Write};
 use std::ops::Range;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
 use super::KvsEngine;
 
 /// 冗余log文件内存大小上限
 const COMPACTION_THRESHOLD: u64 = 1024 * 1024;
 
-/// 在内存中存储键值对的数据结构
+/// KvStore多线程安全共享的实现
+/// 
+/// 使用Arc<Mutex<>>模式实现多线程安全共享
 pub struct KvStore {
+    shared_store: Arc<Mutex<KvStoreBackbone>>,
+}
+
+impl KvStore {
+    /// 根据给定路径返回一个KvStore
+    pub fn open(path: impl Into<PathBuf>) -> Result<Self> {
+        let kvs_core = KvStoreBackbone::open(path)?;
+        Ok(KvStore { shared_store: Arc::new(Mutex::new(kvs_core)) })
+    }
+}
+
+impl Clone for KvStore {
+    fn clone(&self) -> Self {
+        KvStore { shared_store: self.shared_store.clone() }
+    }
+}
+
+impl KvsEngine for KvStore {
+    fn get(&self, key: String) -> Result<Option<String>> {
+        let mut kvs_core = self.shared_store.lock()?;
+
+        kvs_core.get(key)
+    }
+
+    fn remove(&self, key: String) -> Result<()> {
+        let mut kvs_core = self.shared_store.lock()?;
+
+        kvs_core.remove(key)
+    }
+
+    fn set(&self, key: String, value: String) -> Result<()> {
+        let mut kvs_core = self.shared_store.lock()?;
+
+        kvs_core.set(key, value)
+    }
+}
+
+
+/// 在内存中存储键值对的数据结构
+pub struct KvStoreBackbone {
     // 存储log文件的目录路径
     path: PathBuf,
     // log文件编号到文件读取器的映射
@@ -26,9 +69,9 @@ pub struct KvStore {
     uncompacted: u64,
 }
 
-impl KvStore {
-    /// 根据给定路径返回一个KvStore
-    pub fn open(path: impl Into<PathBuf>) -> Result<KvStore> {
+impl KvStoreBackbone {
+    /// 根据给定路径返回一个KvStoreBackbone
+    pub fn open(path: impl Into<PathBuf>) -> Result<KvStoreBackbone> {
         let path: PathBuf = path.into();
         fs::create_dir_all(&path)?;
 
@@ -47,7 +90,7 @@ impl KvStore {
         let current_gen = gen_list.last().unwrap_or(&0) + 1;
         let writer = new_log_file(&path, current_gen, &mut readers)?;
 
-        Ok(KvStore {
+        Ok(KvStoreBackbone {
             path,
             readers,
             writer,
@@ -165,22 +208,6 @@ impl KvStore {
         new_log_file(&self.path, gen, &mut self.readers)
     }
 }
-
-impl KvsEngine for KvStore {
-    fn set(&mut self, key: String, value: String) -> Result<()> {
-        self.set(key, value)
-    }
-
-    fn get(&mut self, key: String) -> Result<Option<String>> {
-        self.get(key)
-    }
-
-    fn remove(&mut self, key: String) -> Result<()> {
-        self.remove(key)
-    }
-}
-
-
 
 /// 保存在磁盘上的操作
 #[derive(Debug, Deserialize, Serialize)]

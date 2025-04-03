@@ -1,4 +1,4 @@
-use crate::thread_pool::ThreadPool;
+use super::ThreadPool;
 use crate::Result;
 
 use std::thread;
