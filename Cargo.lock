@@ -593,6 +593,7 @@ dependencies = [
  "assert_cmd",
  "clap 4.5.32",
  "criterion",
+ "crossbeam-channel",
  "crossbeam-utils 0.6.6",
  "failure",
  "num_cpus",
