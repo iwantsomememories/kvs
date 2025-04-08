@@ -2,6 +2,7 @@ use failure::Fail;
 use std::io;
 use std::string::FromUtf8Error;
 use std::sync::PoisonError;
+use rayon::ThreadPoolBuildError;
 
 /// kvs 错误类型.
 #[derive(Debug, Fail)]
@@ -54,8 +55,14 @@ impl From<FromUtf8Error> for KvsError {
 }
 
 impl<T> From<PoisonError<T>> for KvsError  {
-    fn from(value: PoisonError<T>) -> Self {
+    fn from(_err: PoisonError<T>) -> Self {
         KvsError::StringError("Lock poisoned.".to_string())
+    }
+}
+
+impl From<ThreadPoolBuildError> for KvsError {
+    fn from(_err: ThreadPoolBuildError) -> Self {
+        KvsError::StringError("Failed to create RayonThreadPool".to_string())
     }
 }
 

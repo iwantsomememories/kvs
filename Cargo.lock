@@ -600,6 +600,7 @@ dependencies = [
  "panic-control",
  "predicates",
  "rand",
+ "rayon",
  "serde",
  "serde_json",
  "sled",
