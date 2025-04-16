@@ -31,7 +31,7 @@ impl<E: KvsEngine, P: ThreadPool> KvsServer<E, P> {
 
             self.pool.spawn(move || match stream {
                 Ok(stream) => {
-                    if let Err(e) = serve(engine.clone(), stream, connection_logger.clone()) {
+                    if let Err(e) = serve(engine, stream, connection_logger.clone()) {
                         error!(connection_logger, "Error on serving client: {}", e);
                     }
                 }

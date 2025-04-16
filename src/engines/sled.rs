@@ -7,21 +7,19 @@ use std::sync::{Arc, Mutex};
 /// sled::Db包装
 #[derive(Clone)]
 pub struct SledEngine {
-    db: Arc<Mutex<Db>>,
+    db: Db,
 }
 
 impl SledEngine {
     /// 根据给定Db生成一个SledEngine
     pub fn new(db: Db) -> Self {
-        SledEngine { db: Arc::new(Mutex::new(db)) }
+        SledEngine { db }
     }
 }
 
 impl KvsEngine for SledEngine {
     fn get(&self, key: String) -> Result<Option<String>> {
-        let db = self.db.lock()?;
-
-        let tree: &Tree = &db;
+        let tree: &Tree = &self.db;
         let res = tree.get(key.as_bytes())?;
         match res {
             None => Ok(None),
@@ -34,18 +32,14 @@ impl KvsEngine for SledEngine {
     }  
 
     fn remove(&self, key: String) -> Result<()> {
-        let db = self.db.lock()?;
-
-        let tree: &Tree = &db;
+        let tree: &Tree = &self.db;
         tree.remove(key)?.ok_or(KvsError::KeyNotFound)?;
         tree.flush()?;
         Ok(())
     }
 
     fn set(&self, key: String, value: String) -> Result<()> {
-        let db = self.db.lock()?;
-
-        let tree: &Tree = &db;
+        let tree: &Tree = &self.db;
         tree.insert(key.as_bytes(), value.as_bytes())?;
         tree.flush()?;
         Ok(())
