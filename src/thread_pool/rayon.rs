@@ -1,8 +1,6 @@
 use super::ThreadPool;
 use crate::{Result, KvsError};
 
-use rayon::prelude::*;
-
 /// rayon::ThreadPool的包装
 pub struct RayonThreadPool(rayon::ThreadPool);
 

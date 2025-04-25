@@ -61,6 +61,9 @@ fn addr_parser(s: &str) -> std::result::Result<SocketAddr, String> {
     }
 } 
 
+/// 运行kvs_server
+/// # Usages
+/// kvs-server [--addr IP-PORT] [--engine ENGINE-NAME]
 fn main() {
     let decorator = slog_term::PlainDecorator::new(std::io::stderr());
     let drain = slog_term::CompactFormat::new(decorator).build().fuse();

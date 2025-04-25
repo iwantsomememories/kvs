@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::ffi::OsStr;
 use std::fs::{self, File, OpenOptions};
@@ -79,7 +79,7 @@ impl KvsEngine for KvStore {
     /// 根据键返回对应值，若不包含该键值对，则返回None
     fn get(&self, key: String) -> Result<Option<String>> {
         if let Some(op_pos) = self.index.get(&key) {
-            if let Operation::Set { key, value } = self.reader.read_operation(*op_pos.value())? {
+            if let Operation::Set { key: _, value } = self.reader.read_operation(*op_pos.value())? {
                 Ok(Some(value))
             } else {
                 Err(KvsError::UnexpectedCommandType)

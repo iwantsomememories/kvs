@@ -1,8 +1,6 @@
 use sled::{Db, Tree};
 use super::KvsEngine;
 use crate::{KvsError, Result};
-use std::sync::{Arc, Mutex};
-
 
 /// sled::Db包装
 #[derive(Clone)]

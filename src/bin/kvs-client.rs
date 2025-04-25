@@ -38,6 +38,11 @@ enum Commands {
     Rm { key: String },
 }
 
+/// 运行kvs_client
+/// # Usages
+/// kvs-client set <KEY> <VALUE> [--addr IP-PORT]
+/// kvs-client get <KEY> [--addr IP-PORT]
+/// kvs-client rm <KEY> [--addr IP-PORT]
 #[allow(unused_variables)]
 fn main() {
     let cli = Cli::parse();
